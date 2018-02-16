@@ -11,28 +11,38 @@ library("ggplot2")
 library("shiny")
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
     
     rawdata <- reactive({
         
-        if (is.null(input$infile)) {
-            
-            return(NULL)
-            
-        } else {
-            
-            tmp.data <- read.table(file=input$file_input$datapath, header=T, sep='\t', stringsAsFactors=FALSE)
-            
-        }
+        print("execute ...")
         
+        if (is.null(input$infile)) { return(NULL) }
+        
+        print("execute read data")
+        
+        print(input$action_input)
+        
+        tmp.data <- read.table(file=input$file_input$datapath, header=F, sep='\t', stringsAsFactors=FALSE, nrows = 1024)
+        
+        return(tmp.data)
         
     })  
     
     
     output$spectrum <- renderPlot({
-        df.test <- data.frame(x = rnorm(n = 200, mean = 2, sd = 10))
-        ggplot(data = df.test, aes(x)) +
-            geom_histogram()
+        
+        print("in plotting")
+        
+        if (is.null(rawdata())) {return(NULL)}
+        
+        df.tmp <- rawdata()
+        df.plot <- data.frame("wavelength" = df.tmp[,1],
+                              "measurement" = df.tmp[,2])
+        
+        ggplot(df.plot, aes(wavelength, measurement)) +
+            geom_point()
+        
     })
     # output$distPlot <- renderPlot({
     # 

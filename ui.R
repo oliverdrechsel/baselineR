@@ -18,10 +18,13 @@ shinyUI(fluidPage(
   # Sidebar 
   sidebarLayout(
     sidebarPanel(
-       fileInput("infile",
+       fileInput("file_input",
                  "upload csv file",
                  accept = "csv"
-                 )
+                 ),
+       
+       actionButton("action_input",
+                    "test")
     ),
     
     # Show a plot of the uploaded csv file
