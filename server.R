@@ -33,8 +33,9 @@ shinyServer(function(input, output, session) {
     output$spectrum <- renderPlot({
         
         print("in plotting")
+        print(input$action_input)
         
-        if (is.null(rawdata())) {return(NULL)}
+        if (is.null(input$file_input)) {return(NULL)}
         
         df.tmp <- rawdata()
         df.plot <- data.frame("wavelength" = df.tmp[,1],
