@@ -10,6 +10,7 @@
 
 # ToDo look through this page
 # https://deanattali.com/blog/advanced-shiny-tips/
+# http://enhancedatascience.com/2017/03/01/three-r-shiny-tricks-to-make-your-shiny-app-shines-33-buttons-to-delete-edit-and-compare-datatable-rows/
 
 library("ggplot2")
 library("shiny")
@@ -28,7 +29,7 @@ shinyServer(function(input, output, session) {
         clickStore$coordinates_x <- c(clickStore$coordinates_x, click$x)
         clickStore$coordinates_y <- c(clickStore$coordinates_y, click$y)
     })
-  
+    
     rawdata <- reactive({
         
         if (is.null(input$file_input)) { return(NULL) }
@@ -52,8 +53,8 @@ shinyServer(function(input, output, session) {
         # add all clicked events to the plot
         p.vline <- NULL
         if (length(clickStore$coordinates_x) > 0) {
-          df.clicks <- data.frame(x = clickStore$coordinates_x)
-          p.vline <- geom_vline(data = df.clicks, aes(xintercept = x))
+            df.clicks <- data.frame(x = clickStore$coordinates_x)
+            p.vline <- geom_vline(data = df.clicks, aes(xintercept = x))
         }
         
         # finally plot
@@ -63,6 +64,12 @@ shinyServer(function(input, output, session) {
         
     })
     
-    output$point_select <- renderDataTable(clickStore)
+    output$point_select <- renderDataTable({
+        df.tmp <- data.frame("wavelength" = clickStore$coordinates_x,
+                             "intensity" = clickStore$coordinates_y)
+        
+        df.tmp <- df.tmp[order(df.tmp$wavelength),]
+    })
+    
 })
 

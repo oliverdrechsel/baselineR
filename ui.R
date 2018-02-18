@@ -27,7 +27,8 @@ shinyUI(fluidPage(
     # Show a plot of the uploaded csv file
     mainPanel(
        plotOutput("spectrum",
-                  click = "spectrum_click"),
+                  click = "spectrum_click",
+                  dblclick = "spectrum_dblclick"),
        
        # list the points that have been clicked
        dataTableOutput("point_select")
