@@ -7,21 +7,31 @@
 #    http://shiny.rstudio.com/
 #
 
+
+# ToDo look through this page
+# https://deanattali.com/blog/advanced-shiny-tips/
+
 library("ggplot2")
 library("shiny")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
     
+    # clicks on spectrum plot need to get saved to be used later for table output, drawing in plot and calculate baseline regions
+    # https://stackoverflow.com/questions/41106547/how-to-save-click-events-in-leaflet-shiny-map
+    clickStore <- reactiveValues(coordinates_x = vector(),
+                                 coordinates_y = vector())
+    
+    observeEvent(input$spectrum_click, {
+        click <- input$spectrum_click
+        
+        clickStore$coordinates_x <- c(clickStore$coordinates_x, click$x)
+        clickStore$coordinates_y <- c(clickStore$coordinates_y, click$y)
+    })
+  
     rawdata <- reactive({
         
-        print("execute ...")
-        
-        if (is.null(input$infile)) { return(NULL) }
-        
-        print("execute read data")
-        
-        print(input$action_input)
+        if (is.null(input$file_input)) { return(NULL) }
         
         tmp.data <- read.table(file=input$file_input$datapath, header=F, sep='\t', stringsAsFactors=FALSE, nrows = 1024)
         
@@ -32,27 +42,27 @@ shinyServer(function(input, output, session) {
     
     output$spectrum <- renderPlot({
         
-        print("in plotting")
-        print(input$action_input)
-        
         if (is.null(input$file_input)) {return(NULL)}
         
+        # read the data (only the first column - wavelengths and second column - first spectrum without decay is needed)
         df.tmp <- rawdata()
         df.plot <- data.frame("wavelength" = df.tmp[,1],
-                              "measurement" = df.tmp[,2])
+                              "emission" = df.tmp[,2])
         
-        ggplot(df.plot, aes(wavelength, measurement)) +
-            geom_point()
+        # add all clicked events to the plot
+        p.vline <- NULL
+        if (length(clickStore$coordinates_x) > 0) {
+          df.clicks <- data.frame(x = clickStore$coordinates_x)
+          p.vline <- geom_vline(data = df.clicks, aes(xintercept = x))
+        }
+        
+        # finally plot
+        ggplot(df.plot, aes(wavelength, emission)) +
+            geom_point() +
+            p.vline
         
     })
-    # output$distPlot <- renderPlot({
-    # 
-    # # generate bins based on input$bins from ui.R
-    # x    <- faithful[, 2] 
-    # bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    # 
-    # # draw the histogram with the specified number of bins
-    # hist(x, breaks = bins, col = 'darkgray', border = 'white')
     
+    output$point_select <- renderDataTable(clickStore)
 })
 

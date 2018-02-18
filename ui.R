@@ -21,15 +21,16 @@ shinyUI(fluidPage(
        fileInput("file_input",
                  "upload csv file",
                  accept = "csv"
-                 ),
-       
-       actionButton("action_input",
-                    "test")
+                 )
     ),
     
     # Show a plot of the uploaded csv file
     mainPanel(
-       plotOutput("spectrum")
+       plotOutput("spectrum",
+                  click = "spectrum_click"),
+       
+       # list the points that have been clicked
+       dataTableOutput("point_select")
     )
   )
 ))
