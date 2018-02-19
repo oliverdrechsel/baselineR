@@ -30,6 +30,22 @@ shinyServer(function(input, output, session) {
         clickStore$coordinates_y <- c(clickStore$coordinates_y, click$y)
     })
     
+    observeEvent(input$spectrum_dblclick, {
+        # nearPoints() function does not work in my hands
+        # in the sake of time saving, using which()
+        
+        df.tmp <- data.frame("wavelength" = clickStore$coordinates_x,
+                   "emission" = clickStore$coordinates_y)
+        
+        threshold <- 1
+        v.index <- which(clickStore$coordinates_x >= input$spectrum_dblclick$x - threshold & 
+                  clickStore$coordinates_x <= input$spectrum_dblclick$x + threshold)
+        
+        # delete the double clicked region
+        clickStore$coordinates_x <- clickStore$coordinates_x[-v.index]
+        clickStore$coordinates_y <- clickStore$coordinates_y[-v.index]
+    })
+    
     rawdata <- reactive({
         
         if (is.null(input$file_input)) { return(NULL) }
