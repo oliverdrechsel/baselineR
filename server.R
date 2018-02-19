@@ -80,7 +80,8 @@ shinyServer(function(input, output, session) {
         
     })
     
-    output$point_select <- renderDataTable({
+    # output$point_select <- renderDataTable({
+    output$point_select <- renderTable({
         df.tmp <- data.frame("wavelength" = clickStore$coordinates_x,
                              "intensity" = clickStore$coordinates_y)
         

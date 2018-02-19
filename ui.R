@@ -31,7 +31,8 @@ shinyUI(fluidPage(
                   dblclick = "spectrum_dblclick"),
        
        # list the points that have been clicked
-       dataTableOutput("point_select")
+       # dataTableOutput("point_select")
+       tableOutput("point_select")
     )
   )
 ))
